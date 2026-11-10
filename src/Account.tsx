@@ -1,29 +1,68 @@
 import {useEffect,useState,type FormEvent} from 'react';
+import {createUserWithEmailAndPassword,onAuthStateChanged,signInWithEmailAndPassword,signOut,updateProfile} from 'firebase/auth';
+import {doc,getDoc,setDoc,updateDoc} from 'firebase/firestore';
 import App from './App';
+import {auth,db} from './firebase';
 import './account.css';
 
 type User={id:string;name:string;email:string;title:string;bio:string;createdAt:string};
-async function api(path:string,method='GET',data?:unknown){
-  let response:Response;
-  try{response=await fetch(path,{method,credentials:'same-origin',headers:method==='GET'?{}:{'Content-Type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)});}catch{throw new Error('Serverə qoşulmaq mümkün olmadı. Yenidən cəhd edin.');}
-  const result=await response.json().catch(()=>({error:'Hesab xidməti hazır deyil. Yenidən cəhd edin.'}));
-  if(!response.ok)throw new Error(result.error||'Sorğu alınmadı.');return result;
+function readableError(error:unknown){
+  const code=(error as {code?:string})?.code;
+  const messages:Record<string,string>={
+    'auth/email-already-in-use':'Bu e-poçt artıq qeydiyyatdan keçib.',
+    'auth/invalid-email':'E-poçt ünvanı düzgün deyil.',
+    'auth/weak-password':'Daha güclü şifrə seçin.',
+    'auth/invalid-credential':'E-poçt və ya şifrə yanlışdır.',
+    'auth/too-many-requests':'Çox sayda cəhd edildi. Bir az sonra yenidən yoxlayın.',
+    'auth/network-request-failed':'İnternet bağlantısını yoxlayın.',
+    'permission-denied':'Profil məlumatlarına giriş icazəsi yoxdur.'
+  };
+  return messages[code||'']||(error instanceof Error?error.message:'Xəta baş verdi.');
+}
+async function loadUser(firebaseUser:NonNullable<typeof auth.currentUser>):Promise<User>{
+  const snapshot=await getDoc(doc(db,'users',firebaseUser.uid));
+  const profile=snapshot.exists()?snapshot.data():{};
+  return {id:firebaseUser.uid,name:String(profile.name||firebaseUser.displayName||firebaseUser.email?.split('@')[0]||'İstifadəçi'),email:firebaseUser.email||'',title:String(profile.title||''),bio:String(profile.bio||''),createdAt:String(profile.createdAt||firebaseUser.metadata.creationTime||'')};
 }
 export default function Account(){
   const [user,setUser]=useState<User|null>(null),[ready,setReady]=useState(false),[error,setError]=useState(''),[busy,setBusy]=useState(false);
-  const [page,setPage]=useState(location.pathname),[notice,setNotice]=useState('');
-  useEffect(()=>{if(location.pathname.startsWith('/admin')){history.replaceState({},'','/login');setPage('/login');}},[]);
-  const go=(path:string)=>{history.pushState({},'',path);setPage(path);setError('');setNotice('');};
-  useEffect(()=>{const pop=()=>{setPage(location.pathname);setError('');};window.addEventListener('popstate',pop);void api('/api/auth/me').then(r=>setUser(r.user)).catch(e=>setError(e.message)).finally(()=>setReady(true));return()=>window.removeEventListener('popstate',pop);},[]);
+  const currentPage=()=>location.hash.slice(1)||'/';
+  const [page,setPage]=useState(currentPage),[notice,setNotice]=useState('');
+  const go=(path:string)=>{location.hash=path;setPage(path);setError('');setNotice('');};
+  useEffect(()=>{
+    if(currentPage().startsWith('/admin'))location.hash='/login';
+    const pop=()=>{setPage(currentPage());setError('');};
+    window.addEventListener('hashchange',pop);
+    let active=true;
+    const unsubscribe=onAuthStateChanged(auth,async firebaseUser=>{
+      if(!firebaseUser){if(active){setUser(null);setReady(true);}return;}
+      try{const profile=await loadUser(firebaseUser);if(active)setUser(profile);}
+      catch(e){if(active)setError(readableError(e));}
+      finally{if(active)setReady(true);}
+    });
+    return()=>{active=false;unsubscribe();window.removeEventListener('hashchange',pop);};
+  },[]);
   async function submit(event:FormEvent<HTMLFormElement>,kind:string){
     event.preventDefault();setBusy(true);setError('');setNotice('');const data=Object.fromEntries(new FormData(event.currentTarget));
     try{
       if(kind==='register' && data.password!==data.confirm)throw new Error('Şifrələr uyğun gəlmir.');
-      const result=await api(kind==='profile'?'/api/profile':`/api/auth/${kind}`,kind==='profile'?'PATCH':'POST',data);
-      setUser(result.user);if(kind==='profile')setNotice('Profiliniz yadda saxlanıldı.');else go('/');
-    }catch(e){setError(e instanceof Error?e.message:'Xəta baş verdi.');}finally{setBusy(false);}
+      if(kind==='profile'){
+        if(!auth.currentUser)throw new Error('Əvvəlcə hesabınıza daxil olun.');
+        await updateDoc(doc(db,'users',auth.currentUser.uid),{name:String(data.name).trim(),title:String(data.title||'').trim(),bio:String(data.bio||'').trim(),updatedAt:new Date().toISOString()});
+        setUser(await loadUser(auth.currentUser));setNotice('Profiliniz yadda saxlanıldı.');
+      }else if(kind==='register'){
+        const credential=await createUserWithEmailAndPassword(auth,String(data.email).trim(),String(data.password));
+        const name=String(data.name).trim();
+        await updateProfile(credential.user,{displayName:name});
+        await setDoc(doc(db,'users',credential.user.uid),{name,email:credential.user.email,title:'',bio:'',createdAt:new Date().toISOString()});
+        setUser(await loadUser(credential.user));go('/');
+      }else{
+        const credential=await signInWithEmailAndPassword(auth,String(data.email).trim(),String(data.password));
+        setUser(await loadUser(credential.user));go('/');
+      }
+    }catch(e){setError(readableError(e));}finally{setBusy(false);}
   }
-  async function logout(){setBusy(true);setError('');try{await api('/api/auth/logout','POST',{});setUser(null);go('/login');}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
+  async function logout(){setBusy(true);setError('');try{await signOut(auth);setUser(null);go('/login');}catch(e){setError(readableError(e));}finally{setBusy(false);}}
   if(!ready)return <div className="account-shell"><p role="status">Hesab yoxlanılır…</p></div>;
   const register=page==='/register';
   const authPage=!user||page==='/login'||page==='/register';

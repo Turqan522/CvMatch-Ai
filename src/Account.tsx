@@ -2,6 +2,7 @@ import {useEffect,useState,type FormEvent} from 'react';
 import {createUserWithEmailAndPassword,onAuthStateChanged,signInWithEmailAndPassword,signOut,updateProfile} from 'firebase/auth';
 import {doc,getDoc,setDoc,updateDoc} from 'firebase/firestore';
 import App from './App';
+import {Moon,Sun} from 'lucide-react';
 import {auth,db} from './firebase';
 import './account.css';
 
@@ -25,6 +26,8 @@ async function loadUser(firebaseUser:NonNullable<typeof auth.currentUser>):Promi
   return {id:firebaseUser.uid,name:String(profile.name||firebaseUser.displayName||firebaseUser.email?.split('@')[0]||'İstifadəçi'),email:firebaseUser.email||'',title:String(profile.title||''),bio:String(profile.bio||''),createdAt:String(profile.createdAt||firebaseUser.metadata.creationTime||'')};
 }
 export default function Account(){
+  const [theme,setTheme]=useState<'dark'|'saas'>(()=>{try{return localStorage.getItem('cvmatch_theme')==='saas'?'saas':'dark';}catch{return 'dark';}});
+  useEffect(()=>{document.documentElement.dataset.theme=theme;try{localStorage.setItem('cvmatch_theme',theme);}catch{/* storage unavailable */}},[theme]);
   const [user,setUser]=useState<User|null>(null),[ready,setReady]=useState(false),[error,setError]=useState(''),[busy,setBusy]=useState(false);
   const currentPage=()=>location.hash.slice(1)||'/';
   const [page,setPage]=useState(currentPage),[notice,setNotice]=useState('');
@@ -66,7 +69,7 @@ export default function Account(){
   if(!ready)return <div className="account-shell"><p role="status">Hesab yoxlanılır…</p></div>;
   const register=page==='/register';
   const authPage=!user||page==='/login'||page==='/register';
-  return <><div className="account-bar"><a className="brand" href="/" onClick={e=>{e.preventDefault();go('/');}}>CVMatch <em>AI</em></a><nav aria-label="Hesab menyusu">{user?<><span>{user.name}</span><button onClick={()=>go('/')}>CV hazırla</button><button onClick={()=>go('/profile')}>Profilim</button><button disabled={busy} onClick={()=>void logout()}>Çıxış</button></>:<><button onClick={()=>go('/login')}>Daxil ol</button><button onClick={()=>go('/register')}>Hesab yarat</button></>}</nav></div>
+  return <><div className="account-bar"><a className="brand" href="/" onClick={e=>{e.preventDefault();go('/');}}>CVMatch <em>AI</em></a><nav aria-label="Hesab menyusu"><button className="theme-switch" type="button" onClick={()=>setTheme(value=>value==='dark'?'saas':'dark')} aria-label={theme==='dark'?'Premium açıq SaaS rejiminə keç':'Tünd-göy rejimə keç'} title={theme==='dark'?'Açıq SaaS rejimi':'Tünd-göy rejim'}>{theme==='dark'?<Sun size={16}/>:<Moon size={16}/>}<span>{theme==='dark'?'SaaS rejimi':'Tünd-göy'}</span></button>{user?<><span>{user.name}</span><button onClick={()=>go('/')}>CV hazırla</button><button onClick={()=>go('/profile')}>Profilim</button><button disabled={busy} onClick={()=>void logout()}>Çıxış</button></>:<><button onClick={()=>go('/login')}>Daxil ol</button><button onClick={()=>go('/register')}>Hesab yarat</button></>}</nav></div>
     {error&&<div className="account-alert" role="alert">{error}</div>}
     {authPage?<main className="account-shell auth-layout"><section className="account-intro"><span className="eyebrow">KARYERANA NÖVBƏTİ ADDIM</span><h1>{register?'Yeni başlanğıc,\nyeni imkanlar.':'Xoş gəlmisiniz.'}</h1><p>{'Profilinizi yaradın, CV-nizi vakansiyaya uyğunlaşdırın və bacarıqlarınızı önə çıxarın.'}</p><div className="account-feature">01 — Şəxsi profil<br/>02 — CV və vakansiya analizi<br/>03 — Hazır CV ixracı</div></section><section className="work-card account-form"><h2>{register?'Hesab yarat':'Hesabına daxil ol'}</h2><p className="account-muted">{register?'Başlamaq üçün məlumatlarınızı daxil edin.':'E-poçt və şifrənizlə davam edin.'}</p><form key={page} onSubmit={e=>void submit(e,register?'register':'login')}>
       {register&&<label>Ad və soyad<input name="name" autoComplete="name" minLength={2} maxLength={100} required/></label>}

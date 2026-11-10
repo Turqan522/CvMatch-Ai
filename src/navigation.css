@@ -1,0 +1,2 @@
+.account-bar nav button[aria-current="page"]{color:#8ef5ce;background:#57d7a31a;border:1px solid #69edb75c;border-radius:9px;padding:8px 10px}
+@media(max-width:760px){.career-page{padding-top:12px}.account-bar nav{width:100%;gap:8px}.account-bar nav button{font-size:12px}}

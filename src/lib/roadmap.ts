@@ -15,3 +15,9 @@ export function roadmapSkillGaps(cv:string,role:RoadmapRole){
   return {found,missing:role.skills.filter(skill=>!found.includes(skill))};
 }
 export function roadmapTasks(role:RoadmapRole){return role.tasks.map((tasks,i)=>({period:[30,60,90][i],tasks}));}
+export function recommendedRoadmapRole(roles:string[]){return ROADMAP_ROLES.find(role=>roles.includes(role.name))?.name||null;}
+export function combinedRoadmapSkillGaps(cv:string,evidence:string[],role:RoadmapRole){
+  const cvGaps=roadmapSkillGaps(cv,role);
+  const fromProfiles=role.skills.filter(skill=>!cvGaps.found.includes(skill)&&evidence.some(item=>normalizeSkill(item)===normalizeSkill(skill)));
+  return {fromCv:cvGaps.found,fromProfiles,found:[...cvGaps.found,...fromProfiles],missing:cvGaps.missing.filter(skill=>!fromProfiles.includes(skill))};
+}

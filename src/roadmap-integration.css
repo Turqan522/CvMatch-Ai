@@ -1,0 +1,5 @@
+.roadmap-connected{display:flex;align-items:center;justify-content:space-between;gap:18px;background:#102d30;border:1px solid #57cca563;border-radius:14px;padding:17px 20px;margin-bottom:23px}
+.roadmap-connected strong{color:#9ff2ce;font-size:15px}
+.roadmap-connected p{color:#c3d8df;font-size:13px;line-height:1.6;margin:6px 0 0}
+.roadmap-connected .btn{flex-shrink:0;text-decoration:none;display:inline-flex;align-items:center;gap:7px}
+@media(max-width:720px){.roadmap-connected{flex-direction:column;align-items:stretch}.roadmap-connected .btn{justify-content:center}}

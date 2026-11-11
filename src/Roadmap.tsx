@@ -1,0 +1,39 @@
+import {useMemo,useState} from 'react';
+import {getAI,getGenerativeModel,GoogleAIBackend} from 'firebase/ai';
+import {ArrowRight,BookOpen,CheckCircle2,Download,LoaderCircle,Map,RefreshCw,Sparkles,Target} from 'lucide-react';
+import {app} from './firebase';
+import {ROADMAP_ROLES,roadmapSkillGaps,roadmapTasks} from './lib/roadmap';
+import './roadmap.css';
+
+type SavedState={role:string;done:string[];goal:string;aiNotes:string};
+function initial(userId:string):SavedState{try{const data=JSON.parse(localStorage.getItem('cvmatch_roadmap_'+userId)||'{}');return {role:typeof data.role==='string'?data.role:ROADMAP_ROLES[0].name,done:Array.isArray(data.done)?data.done.filter((x:unknown)=>typeof x==='string'):[],goal:typeof data.goal==='string'?data.goal:'',aiNotes:typeof data.aiNotes==='string'?data.aiNotes:''};}catch{return{role:ROADMAP_ROLES[0].name,done:[],goal:'',aiNotes:''};}}
+export default function Roadmap({userId,cv}:{userId:string;cv:string}){
+  const [state,setState]=useState<SavedState>(()=>initial(userId));
+  const [busy,setBusy]=useState(false),[error,setError]=useState(''),[includeCv,setIncludeCv]=useState(false);
+  const role=ROADMAP_ROLES.find(r=>r.name===state.role)||ROADMAP_ROLES[0];
+  const gaps=useMemo(()=>roadmapSkillGaps(cv,role),[cv,role]);
+  const phases=roadmapTasks(role);
+  const total=phases.reduce((n,p)=>n+p.tasks.length,0);
+  const done=phases.reduce((n,p)=>n+p.tasks.filter((_,i)=>state.done.includes(`${state.role}:${p.period}:${i}`)).length,0);
+  const update=(changes:Partial<SavedState>)=>{setState(old=>{const next={...old,...changes};try{localStorage.setItem('cvmatch_roadmap_'+userId,JSON.stringify(next));}catch{/* private mode */}return next;});};
+  const toggle=(key:string)=>update({done:state.done.includes(key)?state.done.filter(x=>x!==key):[...state.done,key]});
+  const aiPlan=async()=>{
+    setBusy(true);setError('');
+    try{
+      const ai=getAI(app,{backend:new GoogleAIBackend()});
+      const model=getGenerativeModel(ai,{model:'gemini-3.5-flash-lite',systemInstruction:'Sən CVMatch AI karyera mentorusan. Azərbaycan dilində, realistik, qısa və konkret 30/60/90 günlük inkişaf tövsiyələri ver. Təcrübə və nailiyyət uydurma. Yalnız 3 mərhələ (30, 60, 90 gün) və hər mərhələyə 2 ölçülə bilən tövsiyə yaz. 220 sözdən uzun olmasın.'});
+      const prompt=`Hədəf peşə: ${role.name}. Namizədin özü qeyd etdiyi məqsəd: ${state.goal.slice(0,400)||'Qeyd edilməyib'}. Texnologiya boşluqları (yalnız CV mətnindən avtomatik çıxarılıb): ${gaps.missing.join(', ')}. ${includeCv&&cv.trim()?`Namizədin açıq razılığı ilə CV-dən seçilmiş mətn: ${cv.slice(0,2000)}`:''} Bu məlumatlara görə realistik plan yaz.`;
+      const result=await model.generateContent(prompt);
+      const notes=result.response.text().trim();if(!notes)throw new Error('empty');
+      update({aiNotes:notes});
+    }catch(e){const message=e instanceof Error?e.message:'';setError(/429|quota/i.test(message)?'Pulsuz AI limiti dolub. Aşağıdakı əsas yol xəritəsi yenə işləyir.':'AI mentor hazırda cavab vermir. Aşağıdakı əsas planı istifadə edə bilərsiniz.');}finally{setBusy(false);}
+  };
+  const download=()=>{const content=[`CVMatch AI — ${role.name} | 90 günlük yol xəritəsi`,`Məqsəd: ${state.goal||'Qeyd edilməyib'}`,`CV-də görünən bacarıqlar: ${gaps.found.join(', ')||'Təyin edilməyib'}`,`İnkişaf sahələri: ${gaps.missing.join(', ')||'Əlavə sahə tapılmadı'}`,...phases.map(phase=>`\n${phase.period} günə qədər:\n${phase.tasks.map((task,i)=>`${state.done.includes(`${state.role}:${phase.period}:${i}`)?'✓':'□'} ${task}`).join('\n')}`),state.aiNotes?`\nAI mentor tövsiyəsi:\n${state.aiNotes}`:''].join('\n');const url=URL.createObjectURL(new Blob([content],{type:'text/plain;charset=utf-8'}));const link=document.createElement('a');link.href=url;link.download='CVMatch_AI_Career_Roadmap.txt';link.click();setTimeout(()=>URL.revokeObjectURL(url),1500);};
+  return <main className="app-shell roadmap-page"><header className="roadmap-hero"><span className="small-kicker"><Sparkles size={14}/> CAREER INTELLIGENCE · ŞƏXSİ İNKİŞAF</span><h1><Map size={34}/> AI Career Roadmap</h1><p>Hədəf peşənizi seçin, CV-də görünən bacarıqlarınızı nəzərdən keçirin və 30/60/90 günlük inkişaf yolunuzu izləyin.</p></header>
+    <section className="work-card roadmap-options"><div className="roadmap-grid"><label>Hədəf peşə<select value={state.role} onChange={e=>update({role:e.target.value,aiNotes:''})}>{ROADMAP_ROLES.map(r=><option key={r.name}>{r.name}</option>)}</select></label><label>Şəxsi hədəfiniz (istəyə bağlı)<input maxLength={400} value={state.goal} onChange={e=>update({goal:e.target.value,aiNotes:''})} placeholder="Məsələn, 3 aya ilk təcrübə proqramımı tapmaq"/></label></div><div className="roadmap-skills"><div><h3><CheckCircle2 size={17}/> CV-də görünən</h3><div className="roadmap-tags">{gaps.found.length?gaps.found.map(s=><span key={s} className="known">{s}</span>):<span>Bu sahə üzrə bacarıq CV-də görünmür.</span>}</div></div><div><h3><Target size={17}/> İnkişaf üçün yoxlayın</h3><div className="roadmap-tags">{gaps.missing.map(s=><span key={s}>{s}</span>)}</div></div></div><p className="roadmap-note">Avtomatik yoxlama yalnız CV-də yazılan sözləri müəyyən edir. Göstərilməyən bacarıq mütləq bilmədiyiniz demək deyil.</p></section>
+    <section className="roadmap-summary"><div><BookOpen size={22}/><span><b>{total}</b> praktik tapşırıq</span></div><div><CheckCircle2 size={22}/><span><b>{done}</b> tamamlandı</span></div><div><Target size={22}/><span><b>{Math.round(done/total*100)}%</b> irəliləyiş</span></div></section>
+    <div className="roadmap-meter" role="progressbar" aria-label="Yol xəritəsi irəliləyişi" aria-valuemin={0} aria-valuemax={total} aria-valuenow={done}><span style={{width:`${done/total*100}%`}}/></div>
+    <div className="roadmap-phases">{phases.map((phase,i)=><section className="work-card roadmap-phase" key={phase.period}><div className="roadmap-phase-head"><span className="roadmap-period">{i+1 < 10?'0'+(i+1):i+1}</span><div><span className="small-kicker">{phase.period} GÜN</span><h2>{['Təməl bacarıqlar','Praktik inkişaf','Portfolio və müraciət'][i]}</h2></div></div><ul>{phase.tasks.map((task,j)=>{const key=`${state.role}:${phase.period}:${j}`;return <li key={key}><label><input type="checkbox" checked={state.done.includes(key)} onChange={()=>toggle(key)}/><span>{task}</span></label></li>})}</ul></section>)}</div>
+    <section className="work-card roadmap-ai"><span className="small-kicker">FƏRDİ AI MENTOR</span><h2><Sparkles size={20}/> Yol xəritənizi daha da fərdiləşdirin</h2><p>İstəsəniz, AI hədəf peşənizə və qeyd etdiyiniz məqsədə əsasən əlavə tövsiyələr hazırlasın.</p><label className="roadmap-consent"><input type="checkbox" checked={includeCv} onChange={e=>setIncludeCv(e.target.checked)}/><span>CV mətnimi AI-yə göndərməyə razıyam (istəyə bağlı). Seçilməsə, yalnız məqsəd və müəyyən edilmiş bacarıq boşluqları göndərilir.</span></label><div className="roadmap-actions"><button className="btn primary" disabled={busy} onClick={()=>void aiPlan()}>{busy?<LoaderCircle className="spin" size={16}/>:<Sparkles size={16}/>} {busy?'AI plan hazırlayır…':'AI ilə fərdi plan yarat'} <ArrowRight size={15}/></button><button className="btn secondary" onClick={download}><Download size={16}/> Planı endir</button><button className="btn ghost" onClick={()=>update({done:[]})}><RefreshCw size={15}/> İrəliləyişi sıfırla</button></div>{error&&<div className="info-box" role="alert">{error}</div>}{state.aiNotes&&<div className="roadmap-ai-output" role="status"><h3>AI mentorun tövsiyələri</h3><p>{state.aiNotes}</p><small>Bu, karyera məsləhətidir; işə qəbul zəmanəti deyil.</small></div>}</section>
+  </main>;
+}

@@ -5,6 +5,22 @@ export type GithubProfile={login:string;name:string|null;bio:string|null;public_
 export type CareerFinding={area:'CV'|'LinkedIn'|'GitHub'|'Ümumi';tone:'good'|'improve';message:string};
 export type CareerReport={skills:string[];roles:string[];findings:CareerFinding[]};
 export type JobListing={id:number;title:string;company_name:string;url:string;candidate_required_location:string;description:string;publication_date:string;category:string};
+export type ProfileAuditItem={id:string;title:string;detail:string;complete:boolean;priority:'high'|'medium';source:'LinkedIn'|'GitHub'};
+
+export function profileAudit(linkedin:string,github:GithubProfile|null):ProfileAuditItem[]{
+  const has=(re:RegExp)=>re.test(linkedin);
+  const repos=github?.repos||[];
+  return [
+    {id:'li-headline',source:'LinkedIn',title:'Aydın peşəkar başlıq',detail:'Headline hissəsində hədəf rolunuzu və 2–3 əsas bacarığınızı yazın.',complete:has(/headline|başlıq|başliq|[|][^\n]{8,}/i),priority:'high'},
+    {id:'li-about',source:'LinkedIn',title:'Dəyər yaradan About bölməsi',detail:'Kim olduğunuzu, güclü tərəflərinizi və real nəticənizi 3–5 cümlədə izah edin.',complete:has(/about|haqqımda|haqqimda|summary/i)&&linkedin.trim().length>=180,priority:'high'},
+    {id:'li-experience',source:'LinkedIn',title:'Təcrübə və layihə sübutları',detail:'Experience/Projects hissəsinə rolunuzu, texnologiyanı və ölçülə bilən nəticəni əlavə edin.',complete:has(/experience|təcrübə|tecrube|projects|layihə|layihe/i),priority:'high'},
+    {id:'li-skills',source:'LinkedIn',title:'Bacarıqlar və sertifikatlar',detail:'Skills və sertifikatları hədəf vakansiyaya uyğun sıralayın.',complete:has(/skills|bacarıq|bacariq|certificat|sertifikat/i),priority:'medium'},
+    {id:'gh-bio',source:'GitHub',title:'GitHub bio və portfolio linki',detail:'Bio-da ixtisasınızı, blog/portfolio linkində isə ən güclü işinizi göstərin.',complete:!!github?.bio&&!!github?.blog,priority:'high'},
+    {id:'gh-projects',source:'GitHub',title:'Ən azı 3 orijinal açıq layihə',detail:'Kiçik tapşırıqlardan əlavə 3 real problem həll edən layihə paylaşın.',complete:repos.length>=3,priority:'high'},
+    {id:'gh-descriptions',source:'GitHub',title:'Layihələrin qısa təsvirləri',detail:'Hər açıq repoya məqsədini, stack-ini və nəticəsini izah edən təsvir əlavə edin.',complete:repos.length>0&&repos.every(repo=>!!repo.description?.trim()),priority:'medium'},
+    {id:'gh-updated',source:'GitHub',title:'Aktual layihə fəaliyyəti',detail:'Portfolio layihələrini müntəzəm yeniləyin; köhnə layihələri arxivləşdirin və ya sənədləşdirin.',complete:repos.some(repo=>Number.isFinite(Date.parse(repo.updated_at))&&Date.now()-Date.parse(repo.updated_at)<1000*60*60*24*90),priority:'medium'}
+  ];
+}
 
 const roles=[
   {name:'Python Developer',words:['python','django','flask','fastapi']},

@@ -1,0 +1,88 @@
+/* CVMatch AI 2026 — accessibility-first design system; additive, non-destructive */
+:root{
+ --studio-glow:rgba(67,221,181,.12);
+ --studio-focus:#70f0cf;
+ --studio-ease:cubic-bezier(.2,.8,.2,1);
+}
+html[data-theme="saas"]{--studio-glow:rgba(11,128,151,.075);--studio-focus:#087b74}
+:where(button,a,input,textarea,select):focus-visible{
+ outline:3px solid var(--studio-focus)!important;outline-offset:3px!important;
+}
+:where(button,.btn,.nav-trigger,.ci-action-icon){-webkit-tap-highlight-color:transparent}
+:where(.btn,.nav-trigger,.theme-switch,.ci-small-button){min-height:44px}
+:where(.btn,.nav-trigger,.theme-switch,.ci-small-button):disabled{cursor:not-allowed;opacity:.55}
+:where(.work-card,.result-card,.ci-card,.ci-kpis>article,.cvv-panel,.ct-card,.analytics-panel){
+ position:relative;isolation:isolate;
+}
+:where(.work-card,.result-card,.ci-card,.ci-kpis>article,.cvv-panel,.ct-card,.analytics-panel){
+ transition:border-color .22s var(--studio-ease),box-shadow .22s var(--studio-ease),transform .22s var(--studio-ease);
+}
+@media (hover:hover){
+ :where(.work-card,.result-card,.ci-card,.ci-kpis>article,.cvv-panel,.ct-card,.analytics-panel):hover{
+ border-color:color-mix(in srgb,var(--ux-accent) 38%,var(--ux-border));
+ }
+ :where(.btn,.ci-small-button):not(:disabled):hover{transform:translateY(-1px)}
+}
+:where(.btn,.ci-small-button){transition:transform .18s var(--studio-ease),box-shadow .18s var(--studio-ease)}
+:where(.ci-hero,.hero){position:relative}
+.ci-hero::after{
+ content:"";position:absolute;pointer-events:none;right:0;top:-38px;width:min(28vw,320px);
+ height:160px;background:radial-gradient(ellipse,var(--studio-glow),transparent 72%);
+ opacity:.85;z-index:-1;
+}
+.ci-hero h1,.hero h1{letter-spacing:-.045em;text-wrap:balance}
+.ci-card h2,.work-card h2{letter-spacing:-.017em}
+.ci-kpis>article{overflow:hidden}
+.ci-kpis>article::before{content:"";position:absolute;inset:0 0 auto;height:2px;background:linear-gradient(90deg,var(--ux-accent),transparent);opacity:.65}
+.ci-kpis strong{font-variant-numeric:tabular-nums;letter-spacing:-.035em}
+:where(.ci-card,.work-card,.result-card) :where(input,textarea,select):not([type="checkbox"]){
+ font:inherit;accent-color:var(--ux-accent);
+}
+:where(.ci-card,.work-card) :where(input,textarea,select):not([type="checkbox"]):focus{
+ border-color:var(--ux-accent);
+}
+.ci-actions a,.ci-quick-grid a{min-height:54px}
+.ci-quick-grid a{display:flex;align-items:center}
+.ci-hint,.ci-hero p{max-width:75ch}
+.studio-progress{height:7px;background:var(--ux-border);border-radius:100px;overflow:hidden;margin:0 0 14px}
+.studio-progress>span{display:block;height:100%;background:linear-gradient(90deg,#33c8bf,#78efd1);border-radius:100px;transition:width .35s var(--studio-ease)}
+.studio-topline{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:9px;margin:12px 0 8px}
+.studio-save-status{display:inline-flex;gap:7px;align-items:center;font-size:12px;color:var(--ux-muted);font-weight:600}
+.studio-save-status[data-state="saved"]{color:var(--ux-accent)}
+.studio-preview{border:1px solid var(--ux-border);border-radius:16px;overflow:hidden;background:var(--ux-surface-soft);margin:18px 0}
+.studio-preview-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:11px 15px;border-bottom:1px solid var(--ux-border)}
+.studio-preview-header strong{font-size:13px}
+.studio-preview-header small{font-size:11px;color:var(--ux-muted)}
+.studio-paper{background:#fff;color:#1d2d3c;margin:16px auto;padding:28px 30px;max-width:580px;width:calc(100% - 32px);min-height:220px;border:1px solid #e2e9ef;box-shadow:0 10px 30px rgba(0,0,0,.14);font-family:Arial,Helvetica,sans-serif;line-height:1.55;overflow-wrap:anywhere}
+.studio-paper h3{font-size:21px;letter-spacing:-.025em;margin:0 0 13px;color:#17354b}
+.studio-paper p{white-space:pre-wrap;font-size:12px;margin:0 0 7px;color:#283d4d}
+.studio-paper[data-template="modern"] h3{text-align:center;color:#0a7883}
+.studio-paper[data-template="compact"]{padding:20px 24px;line-height:1.33}
+.studio-paper[data-template="compact"] p{font-size:11px;margin-bottom:4px}
+.studio-paper-empty{color:#677d8b!important;font-style:italic}
+.studio-insight-panel{border:1px solid var(--ux-border);border-radius:16px;padding:18px;margin:14px 0;background:var(--ux-surface-soft)}
+.studio-insight-panel h3{margin:0 0 10px;font-size:15px}
+.studio-evidence-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.studio-evidence-grid>div{border:1px solid var(--ux-border);border-radius:12px;padding:12px;min-width:0}
+.studio-evidence-grid b{display:block;color:var(--ux-accent);font-size:25px;font-variant-numeric:tabular-nums}
+.studio-evidence-grid span{font-size:12px;color:var(--ux-muted)}
+.command-pipeline{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0}
+.command-pipeline article{border:1px solid var(--ux-border);border-radius:14px;padding:15px;background:var(--ux-surface-soft);min-width:0}
+.command-pipeline strong{display:block;font-size:26px;color:var(--ux-accent);font-variant-numeric:tabular-nums}
+.command-pipeline span{font-size:12px;color:var(--ux-muted)}
+.command-completion{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:0 0 20px}
+.command-completion p{font-size:12px;margin:4px 0 0;color:var(--ux-muted)}
+.command-ring{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--ux-accent) var(--ring,0%),var(--ux-border) 0);flex-shrink:0}
+.command-ring>span{display:grid;place-items:center;width:58px;height:58px;border-radius:50%;background:var(--ux-surface);font-size:16px;font-weight:800}
+@media(max-width:650px){
+ .command-pipeline{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .studio-evidence-grid{grid-template-columns:1fr}
+ .studio-paper{padding:20px;width:calc(100% - 22px);margin:11px auto}
+ .ci-hero::after{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+ .studio-progress>span,.btn,.ci-small-button,
+ :where(.work-card,.result-card,.ci-card,.ci-kpis>article,.cvv-panel,.ct-card,.analytics-panel){
+ transition:none!important;transform:none!important;
+ }
+}

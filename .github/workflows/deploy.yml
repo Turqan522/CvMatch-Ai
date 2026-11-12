@@ -37,7 +37,7 @@ jobs:
       - name: Build site
         run: npm run build
       - name: Install browser and rules test tools
-        run: npm install --no-save --no-package-lock @playwright/test@latest @firebase/rules-unit-testing@latest firebase-tools@latest
+        run: npm install --no-save --no-package-lock @playwright/test@latest @firebase/rules-unit-testing@5 firebase-tools@latest
       - name: Install Chromium for browser tests
         run: npx playwright install --with-deps chromium
       - name: Set up Java for Firestore emulator

@@ -106,8 +106,8 @@ export default function Account(){
     {group.label}<span className="nav-chevron" aria-hidden="true">⌄</span>
    </button>
    <div className="nav-dropdown" aria-hidden={openMenu!==group.id}>
-    {group.links.map(([label,path])=><button type="button" tabIndex={openMenu===group.id?0:-1}
-     aria-current={page===path?'page':undefined} key={path} onClick={()=>go(path)}>{label}</button>)}
+    {group.links.map(([label,path])=><a href={'#'+path} tabIndex={openMenu===group.id?0:-1}
+     aria-current={page===path?'page':undefined} key={path} onClick={event=>{event.preventDefault();go(path);}}>{label}</a>)}
     {group.id==='account'&&<button type="button" tabIndex={openMenu===group.id?0:-1} disabled={busy} onClick={()=>{setOpenMenu(null);void logout()}}>Çıxış</button>}
    </div>
   </div>

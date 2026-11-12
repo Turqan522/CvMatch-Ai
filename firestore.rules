@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+ match /databases/{database}/documents {
+  function owner(uid) { return request.auth != null && request.auth.uid == uid; }
+  function validUser() {
+   let d=request.resource.data;
+   return d.keys().hasOnly(['name','email','title','bio','createdAt','updatedAt','applications','applicationsUpdatedAt','draft','draftUpdatedAt','cvVersions','cvVersionsUpdatedAt'])
+    && d.keys().hasAll(['name','email','createdAt'])
+    && d.name is string && d.name.size() <= 100
+    && d.email is string && d.email.size() <= 254
+    && d.createdAt is string && d.createdAt.size() <= 100
+    && d.get('title','') is string && d.get('title','').size() <= 120
+    && d.get('bio','') is string && d.get('bio','').size() <= 2000
+    && d.get('updatedAt','') is string
+    && d.get('applicationsUpdatedAt','') is string
+    && d.get('draftUpdatedAt','') is string
+    && d.get('cvVersionsUpdatedAt','') is string
+    && d.get('applications',[]) is list && d.get('applications',[]).size() <= 100
+    && d.get('cvVersions',[]) is list && d.get('cvVersions',[]).size() <= 20
+    && d.get('draft',{}) is map
+    && d.get('draft',{}).keys().hasOnly(['cv','job','url','role'])
+    && d.get('draft',{}).get('cv','') is string
+    && d.get('draft',{}).get('cv','').size() <= 30000
+    && d.get('draft',{}).get('job','') is string
+    && d.get('draft',{}).get('job','').size() <= 30000
+    && d.get('draft',{}).get('url','') is string
+    && d.get('draft',{}).get('url','').size() <= 1000
+    && d.get('draft',{}).get('role','') is string
+    && d.get('draft',{}).get('role','').size() <= 120;
+  }
+  match /users/{uid} {
+   allow read: if owner(uid);
+   allow create: if owner(uid) && validUser()
+       && request.resource.data.email == request.auth.token.email;
+   allow update: if owner(uid) && validUser()
+       && request.resource.data.email == resource.data.email
+       && request.resource.data.createdAt == resource.data.createdAt;
+   allow delete: if owner(uid);
+  }
+  match /{document=**} {
+   allow read,write: if false;
+  }
+ }
+}

@@ -43,7 +43,18 @@ export function scoreResume(cv: string, job: string): ScoreResult {
     education: hasSignal(job,educationSignals) ? (hasSignal(cv,educationSignals) ? 100:0):100,
     certifications: hasSignal(job,certificateSignals) ? (hasSignal(cv,certificateSignals) ? 100:0):100,
   };
-  const score = Math.round(components.skills*.50+components.experience*.25+components.education*.10+components.certifications*.15);
+  // Only include criteria actually mentioned in a vacancy. Missing criteria are
+  // not automatic free points. A vacancy without recognized requirements has no score.
+  const weights = {
+    skills: required.length ? .50 : 0,
+    experience: hasSignal(job,experienceSignals) ? .25 : 0,
+    education: hasSignal(job,educationSignals) ? .10 : 0,
+    certifications: hasSignal(job,certificateSignals) ? .15 : 0,
+  };
+  const totalWeight=weights.skills+weights.experience+weights.education+weights.certifications;
+  const score=totalWeight ? Math.round((components.skills*weights.skills+
+    components.experience*weights.experience+components.education*weights.education+
+    components.certifications*weights.certifications)/totalWeight) : 0;
   const suggestions:string[] = [];
   if(missing.length) suggestions.push(`CV-də görünməyən tələblər: ${missing.slice(0,5).join(', ')}. Yalnız real bacarıqlarınızı əlavə edin.`);
   if(!hasSignal(cv,experienceSignals)) suggestions.push('Layihələr və təcrübə bölməsi əlavə edərək real gördüyünüz işləri izah edin.');

@@ -1,0 +1,134 @@
+/* CVMatch AI · unified visual system, additive and safe for existing routes */
+:root{
+ --ux-surface:#141f35;
+ --ux-surface-soft:#192a42;
+ --ux-ink:#edf5ff;
+ --ux-muted:#afc0d5;
+ --ux-border:rgba(155,188,217,.22);
+ --ux-accent:#79eac0;
+ --ux-shadow:0 18px 52px rgba(2,10,27,.28);
+ --ux-radius:20px;
+}
+html[data-theme="saas"]{
+ --ux-surface:#ffffff;
+ --ux-surface-soft:#f5f8fc;
+ --ux-ink:#18314c;
+ --ux-muted:#516a84;
+ --ux-border:#d7e2ee;
+ --ux-accent:#087b63;
+ --ux-shadow:0 15px 42px rgba(23,55,91,.075);
+}
+html{scroll-behavior:smooth}
+body{overflow-x:hidden}
+::selection{background:rgba(106,230,183,.35)}
+/* Unified page rhythm and section headings */
+:is(.application-page,.letter-page,.roadmap-page,.interview-page,.career-page,.analytics-page,.ct-page,.cvv-wrap){line-height:1.6}
+:is(.application-hero,.letter-hero,.roadmap-hero,.interview-page-heading,.career-heading,.analytics-hero,.ct-hero,.cvv-heading){margin-bottom:clamp(22px,3vw,34px)}
+:is(.application-hero,.letter-hero,.roadmap-hero,.interview-page-heading,.analytics-hero,.ct-hero,.cvv-heading) h1{letter-spacing:-.04em;line-height:1.12;text-wrap:balance}
+:is(.application-hero,.letter-hero,.roadmap-hero,.interview-page-heading,.analytics-hero,.ct-hero,.cvv-heading) p{max-width:730px;line-height:1.7;color:var(--ux-muted)}
+/* Make card surfaces and vertical rhythm consistent without changing markup */
+:is(.work-card,.result-card,.career,.career-input-card,.career-report,.career-jobs,.application-stats>div,.analytics-card,.analytics-panel,.ct-card,.cvv-panel,.roadmap-summary>div,.interview-question){
+ border-radius:var(--ux-radius);
+ border-color:var(--ux-border);
+ box-shadow:var(--ux-shadow);
+}
+:is(.application-stats>div,.analytics-card,.ct-card,.cvv-panel,.roadmap-summary>div,.interview-question){
+ transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease;
+}
+@media(hover:hover) and (pointer:fine){
+ :is(.application-stats>div,.analytics-card,.ct-card,.cvv-panel,.roadmap-summary>div):hover{
+  border-color:rgba(108,227,183,.44);
+  box-shadow:0 19px 54px rgba(5,19,44,.22);
+  transform:translateY(-2px);
+ }
+ html[data-theme="saas"] :is(.application-stats>div,.analytics-card,.ct-card,.cvv-panel,.roadmap-summary>div):hover{
+  box-shadow:0 17px 40px rgba(20,58,89,.12);
+ }
+}
+/* Inputs: typography, focus and touch targets */
+:is(.account-form,.application-form,.letter-settings,.letter-preview,.ct-card,.cvv-wrap,.roadmap-page,.interview-page,.career-page) :is(input:not([type="checkbox"]):not([type="radio"]),textarea,select){
+ min-height:44px;
+ max-width:100%;
+ border-radius:12px;
+ transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease;
+}
+:is(.account-form,.application-form,.letter-settings,.letter-preview,.ct-card,.cvv-wrap,.roadmap-page,.interview-page,.career-page) :is(input:not([type="checkbox"]):not([type="radio"]),textarea,select):focus-visible{
+ outline:none;
+ border-color:var(--ux-accent);
+ box-shadow:0 0 0 3px rgba(108,226,184,.18);
+}
+:is(.ct-card,.cvv-wrap,.application-form,.letter-settings) textarea{overflow-wrap:anywhere}
+:is(.btn,.cvv-primary,.cvv-secondary,.cvv-actions button,.ct-job,.theme-switch){
+ transition:transform .18s ease,background-color .18s ease,border-color .18s ease,box-shadow .18s ease,filter .18s ease;
+}
+@media(hover:hover) and (pointer:fine){
+ :is(.btn,.cvv-primary,.cvv-secondary,.cvv-actions button):hover:not(:disabled){transform:translateY(-2px)}
+}
+:where(button,a,input,select,textarea):focus-visible{outline:2px solid var(--ux-accent);outline-offset:3px}
+:is(.btn,.ct-actions .btn,.cvv-primary){min-height:42px}
+:is(.application-list-card,.career-jobs,.ct-card,.cvv-panel,.analytics-panel){min-width:0}
+:is(.application-item,.career-job,.cvv-history,.ct-job){overflow-wrap:anywhere}
+/* Correct theme mismatches in secondary modules */
+html[data-theme="saas"] .application-stats>div,
+html[data-theme="saas"] .roadmap-summary>div,
+html[data-theme="saas"] .interview-question{background:var(--ux-surface);color:var(--ux-ink);border-color:var(--ux-border)}
+html[data-theme="saas"] :is(.application-stats span,.application-hero p,.application-overview p,.application-footnote,.application-item p,.application-item small,.application-upcoming span,.roadmap-hero p,.roadmap-note,.roadmap-ai p,.interview-page-heading p,.interview-muted,.letter-hero p,.letter-muted){color:var(--ux-muted)}
+html[data-theme="saas"] :is(.application-stats strong,.application-form label,.roadmap-grid label,.roadmap-phase li label,.letter-settings>label,.letter-two label){color:var(--ux-ink)}
+html[data-theme="saas"] :is(.application-form input,.application-form select,.application-form textarea,.application-filters input,.application-filters select,.letter-settings input:not([type="checkbox"]),.letter-settings textarea,.letter-settings select,.letter-preview textarea,.roadmap-grid input,.roadmap-grid select,.interview-tools select){
+ background:#f7faff;color:var(--ux-ink);border-color:#cbd9e8;
+}
+html[data-theme="saas"] :is(.application-quick-links a,.roadmap-tags span,.application-status){background:#e7f7f0;color:#136d54;border-color:#bfe3d4}
+html[data-theme="saas"] .application-item{border-color:#dce6ef}
+html[data-theme="saas"] .analytics-hero p{color:var(--ux-muted)}
+html[data-theme="saas"] .analytics-card>div{color:var(--ux-muted)}
+html[data-theme="saas"] .analytics-panel p{color:var(--ux-muted)}
+html[data-theme="saas"] .ct-card .ct-error{color:#a93247;background:#fcecef}
+html[data-theme="saas"] .cvv-note{color:#175843}
+/* Compact, reliable, click-open navigation: do not use floating dropdowns */
+.account-bar .nav-groups{min-width:0}
+.account-bar .nav-tabs{min-width:0}
+.account-bar .nav-tabs .nav-trigger{min-height:42px;font-size:13px;font-weight:700;transition:color .2s,background .2s,border-color .2s,transform .2s}
+.account-bar .nav-tabs .nav-trigger:hover{transform:translateY(-1px)}
+.account-bar .nav-tabs .nav-trigger.is-active{box-shadow:inset 0 0 0 1px rgba(116,230,186,.08)}
+.account-bar .nav-submenu{box-shadow:var(--ux-shadow);border-color:var(--ux-border);gap:8px}
+.account-bar .nav-submenu a{min-height:42px;display:inline-flex;align-items:center}
+html[data-theme="saas"] .account-bar .nav-submenu{box-shadow:var(--ux-shadow)}
+@media(max-width:900px){
+ .account-bar{padding:16px 18px;gap:14px}
+ .account-bar nav{width:100%;min-width:0;gap:10px}
+ .account-bar .nav-groups{width:100%;min-width:0}
+ .account-bar .nav-tabs{
+   flex-wrap:nowrap;display:flex;gap:8px;
+   overflow-x:auto;overscroll-behavior-inline:contain;
+   -webkit-overflow-scrolling:touch;scrollbar-width:thin;
+   padding:0 0 8px;
+ }
+ .account-bar .nav-tabs .nav-trigger,.account-bar .nav-tabs .nav-ai{flex:0 0 auto}
+ .account-bar .nav-submenu{align-items:stretch}
+ .account-bar .nav-submenu a{flex:1 1 175px}
+}
+@media(max-width:650px){
+ .account-bar{padding:14px 15px}
+ .app-shell{width:calc(100% - 28px)}
+ :is(.ct-page,.analytics-page,.cvv-wrap){padding-left:14px;padding-right:14px}
+ :is(.application-page,.letter-page,.roadmap-page,.interview-page,.career-page){padding-top:18px}
+ :is(.work-card,.result-card,.career,.ct-card,.cvv-panel,.analytics-panel){border-radius:16px}
+ .application-stats,.analytics-stats{gap:9px}
+ .application-toolbar,.application-section-head{flex-wrap:wrap}
+ .application-item{flex-wrap:wrap}
+ .application-item-actions{justify-content:flex-start;width:100%}
+ .application-form,.application-filters,.application-overview,.letter-layout,.ct-grid{grid-template-columns:minmax(0,1fr)}
+ .ct-actions,.letter-buttons,.letter-preview-actions,.export-actions{gap:9px}
+ .ct-actions .btn{white-space:normal}
+ .analytics-bars{gap:4px}
+ .analytics-bar-group small{font-size:10px}
+ .cvv-columns,.cvv-selectors,.cvv-fields{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:400px){
+ .application-stats,.analytics-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .account-bar .nav-submenu a{flex-basis:100%}
+}
+@media(prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto}
+ :is(.work-card,.result-card,.career,.analytics-card,.ct-card,.cvv-panel,.roadmap-summary>div,.btn,.nav-trigger){transition:none!important;transform:none!important}
+}

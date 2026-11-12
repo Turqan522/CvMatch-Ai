@@ -36,6 +36,19 @@ jobs:
         run: npm run test:auth
       - name: Build site
         run: npm run build
+      - name: Install browser and rules test tools
+        run: npm install --no-save --no-package-lock @playwright/test@latest @firebase/rules-unit-testing@latest firebase-tools@latest
+      - name: Install Chromium for browser tests
+        run: npx playwright install --with-deps chromium
+      - name: Set up Java for Firestore emulator
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Test Firestore account isolation
+        run: npx firebase emulators:exec --project demo-cvmatch-rules --only firestore "node --test tests/firestore.rules.test.mjs"
+      - name: Run browser smoke tests
+        run: npx playwright test
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload site

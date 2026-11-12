@@ -9,7 +9,7 @@ describe('command center insights',()=>{
  });
  it('reflects verified workflow readiness, not hiring probability',()=>{
   expect(checklistProgress(careerChecklist('','',[],0,0))).toBe(0);
-  expect(checklistProgress(careerChecklist('CV '.repeat(50),'Python SQL Docker', [make('Müraciət edildi')],2,3))).toBe(100);
+  expect(checklistProgress(careerChecklist('CV '.repeat(50),'Python SQL Docker position requires proven work skills', [make('Müraciət edildi')],2,3))).toBe(100);
  });
  it('never divides by zero',()=>expect(checklistProgress([])).toBe(0));
 });

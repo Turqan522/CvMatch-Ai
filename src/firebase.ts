@@ -13,7 +13,7 @@ export const app=initializeApp({
 });
 
 // GitHub Pages uses the public reCAPTCHA site key; no secret key is bundled.
-if(typeof window!=='undefined'){
+if(typeof window!=='undefined'&&!['localhost','127.0.0.1'].includes(window.location.hostname)){
   initializeAppCheck(app,{
     provider:new ReCaptchaEnterpriseProvider('6LcOrxkuAAAAAHC0k-ESM1_Rf3Q_Oq38Ff7Ir_Yl'),
     isTokenAutoRefreshEnabled:true

@@ -92,28 +92,34 @@ export default function Account(){
   const register=page==='/register';
   const authPage=!user||page==='/login'||page==='/register';
   return <><div className="account-bar"><a className="brand" href="/" onClick={e=>{e.preventDefault();go('/');}}>CVMatch <em>AI</em></a><nav aria-label="Hesab menyusu"><button className="theme-switch" type="button" onClick={()=>setTheme(value=>value==='dark'?'saas':'dark')} aria-label={theme==='dark'?'Premium açıq SaaS rejiminə keç':'Tünd-göy rejimə keç'} title={theme==='dark'?'Açıq SaaS rejimi':'Tünd-göy rejim'}>{theme==='dark'?<Sun size={16}/>:<Moon size={16}/>}<span>{theme==='dark'?'SaaS rejimi':'Tünd-göy'}</span></button>{user?<><span>{user.name}</span><div className="nav-groups" ref={navRef}>
- {([
-  {id:'cv',label:'CV Studio',links:[['CV analizi','/'],['CV versiyaları','/versions'],['Çoxdilli CV Studio','/multilingual'],['Motivasiya məktubu','/letter']]},
-  {id:'jobs',label:'İş axtarışı',links:[['Dashboard','/dashboard'],['Vakansiyalar','/jobs'],['Müraciətlərim','/applications'],['Follow-Up Assistant','/followup'],['Karyera statistikası','/analytics']]},
-  {id:'career',label:'Karyera inkişafı',links:[['LinkedIn + GitHub','/profiles'],['Karyera planı','/roadmap'],['HR müsahibə','/interview']]},
-  {id:'account',label:'Hesab',links:[['Profilim','/profile']]}
- ] as {id:string;label:string;links:[string,string][]}[]).map(group=>
-  <div className={'nav-group'+(openMenu===group.id?' is-open':'')} key={group.id}
-   onMouseEnter={()=>setOpenMenu(group.id)}>
-   <button type="button" className="nav-trigger" aria-expanded={openMenu===group.id}
-    aria-haspopup="true" onClick={()=>setOpenMenu(current=>current===group.id?null:group.id)}
-    onKeyDown={event=>{if(event.key==='ArrowDown'){event.preventDefault();setOpenMenu(group.id);}}}>
-    {group.label}<span className="nav-chevron" aria-hidden="true">⌄</span>
-   </button>
-   <div className="nav-dropdown" aria-hidden={openMenu!==group.id}>
-    {group.links.map(([label,path])=><a href={'#'+path} tabIndex={openMenu===group.id?0:-1}
-     aria-current={page===path?'page':undefined} key={path} onClick={event=>{event.preventDefault();go(path);}}>{label}</a>)}
-    {group.id==='account'&&<button type="button" tabIndex={openMenu===group.id?0:-1} disabled={busy} onClick={()=>{setOpenMenu(null);void logout()}}>Çıxış</button>}
-   </div>
+  <div className="nav-tabs">
+    {([
+      {id:'cv',label:'CV Studio'},
+      {id:'jobs',label:'İş axtarışı'},
+      {id:'career',label:'Karyera inkişafı'},
+      {id:'account',label:'Hesab'}
+    ] as {id:string;label:string}[]).map(group=>
+      <button key={group.id} type="button" className={'nav-trigger'+(openMenu===group.id?' is-active':'')}
+        aria-expanded={openMenu===group.id} aria-controls="cvmatch-submenu"
+        onClick={()=>setOpenMenu(current=>current===group.id?null:group.id)}>
+        {group.label}<span aria-hidden="true" className="nav-chevron">⌄</span>
+      </button>
+    )}
+    <button className="nav-ai" type="button" onClick={()=>go('/ai')}>✨ AI Köməkçi</button>
   </div>
- )}
- <button className="nav-ai" onMouseEnter={()=>setOpenMenu(null)} onClick={()=>go('/ai')}>✨ AI Köməkçi</button>
- </div></>:<><button onClick={()=>go('/login')}>Daxil ol</button><button onClick={()=>go('/register')}>Hesab yarat</button></>}</nav></div>
+  {openMenu&&<div id="cvmatch-submenu" className="nav-submenu" role="navigation" aria-label="Alt bölmələr">
+    {({
+      cv:[['CV analizi','/'],['CV versiyaları','/versions'],['Çoxdilli CV Studio','/multilingual'],['Motivasiya məktubu','/letter']],
+      jobs:[['Dashboard','/dashboard'],['Vakansiyalar','/jobs'],['Müraciətlərim','/applications'],['Follow-Up Assistant','/followup'],['Karyera statistikası','/analytics']],
+      career:[['LinkedIn + GitHub','/profiles'],['Karyera planı','/roadmap'],['HR müsahibə','/interview']],
+      account:[['Profilim','/profile']]
+    } as Record<string,[string,string][]>)[openMenu].map(([label,path])=>
+      <a key={path} href={'#'+path} aria-current={page===path?'page':undefined}
+        onClick={event=>{event.preventDefault();go(path);}}>{label}</a>
+    )}
+    {openMenu==='account'&&<button type="button" disabled={busy} onClick={()=>{setOpenMenu(null);void logout()}}>Çıxış</button>}
+  </div>}
+</div></>:<><button onClick={()=>go('/login')}>Daxil ol</button><button onClick={()=>go('/register')}>Hesab yarat</button></>}</nav></div>
     {error&&<div className="account-alert" role="alert">{error}</div>}
     {authPage?<main className="account-shell auth-layout"><section className="account-intro"><span className="eyebrow">KARYERANA NÖVBƏTİ ADDIM</span><h1>{register?'Yeni başlanğıc,\nyeni imkanlar.':'Xoş gəlmisiniz.'}</h1><p>{'Profilinizi yaradın, CV-nizi vakansiyaya uyğunlaşdırın və bacarıqlarınızı önə çıxarın.'}</p><div className="account-feature">01 — Şəxsi profil<br/>02 — CV və vakansiya analizi<br/>03 — Hazır CV ixracı</div></section><section className="work-card account-form"><h2>{register?'Hesab yarat':'Hesabına daxil ol'}</h2><p className="account-muted">{register?'Başlamaq üçün məlumatlarınızı daxil edin.':'E-poçt və şifrənizlə davam edin.'}</p><form key={page} onSubmit={e=>void submit(e,register?'register':'login')}>
       {register&&<label>Ad və soyad<input name="name" autoComplete="name" minLength={2} maxLength={100} required/></label>}

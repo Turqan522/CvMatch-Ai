@@ -39,3 +39,22 @@
 :root[data-theme='saas'] .account-bar .nav-dropdown a{color:#263853}
 :root[data-theme='saas'] .account-bar .nav-dropdown a:hover,:root[data-theme='saas'] .account-bar .nav-dropdown a[aria-current="page"]{color:#167b59;background:#e4f9f0}
 @media(prefers-reduced-motion:reduce){.account-bar .nav-dropdown a{transition:none!important;transform:none!important}}
+
+
+/* Reliable in-flow menu: no floating panel or hover trap */
+.account-bar .nav-groups{display:flex;flex-direction:column;align-items:flex-start;position:relative;gap:0;min-width:0;flex:1}
+.account-bar .nav-tabs{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%}
+.account-bar .nav-tabs .nav-trigger{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:11px;border:1px solid transparent;cursor:pointer;white-space:nowrap}
+.account-bar .nav-tabs .nav-trigger.is-active{border-color:rgba(101,234,181,.40);color:#81efc4;background:rgba(100,230,175,.10)}
+.account-bar .nav-tabs .nav-trigger.is-active .nav-chevron{transform:rotate(180deg)}
+.account-bar .nav-submenu{position:relative;z-index:3;display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:10px 0 2px;padding:12px;border:1px solid rgba(150,180,215,.33);border-radius:14px;background:#192d49;box-shadow:0 9px 24px rgba(0,0,0,.15);width:100%;max-width:100%;box-sizing:border-box;animation:navPanelIn .18s ease-out both}
+.account-bar .nav-submenu a,.account-bar .nav-submenu button{position:relative;display:inline-flex;align-items:center;text-decoration:none;border:1px solid transparent;border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.35;color:#dce9fd;background:transparent;cursor:pointer;transition:background .16s ease,transform .16s ease,color .16s ease;white-space:normal}
+.account-bar .nav-submenu a:hover,.account-bar .nav-submenu button:hover,.account-bar .nav-submenu a:focus-visible,.account-bar .nav-submenu button:focus-visible{color:#96f7d3;background:rgba(104,224,178,.15);transform:translateY(-2px)}
+.account-bar .nav-submenu a[aria-current="page"]{color:#90f5cf;background:rgba(104,224,178,.14);border-color:rgba(104,224,178,.25)}
+.account-bar .nav-submenu a:focus-visible,.account-bar .nav-submenu button:focus-visible{outline:2px solid #83f0c4;outline-offset:2px}
+:root[data-theme='saas'] .account-bar .nav-submenu{background:#fff;border-color:#d2dfef}
+:root[data-theme='saas'] .account-bar .nav-submenu a,:root[data-theme='saas'] .account-bar .nav-submenu button{color:#263c57}
+:root[data-theme='saas'] .account-bar .nav-submenu a:hover,:root[data-theme='saas'] .account-bar .nav-submenu a[aria-current="page"]{background:#e2f6ed;color:#177f5b}
+@keyframes navPanelIn{from{opacity:.4;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:760px){.account-bar .nav-groups,.account-bar .nav-tabs{width:100%}.account-bar .nav-submenu{width:100%;gap:5px}.account-bar .nav-submenu a{flex:1 1 145px}}
+@media(prefers-reduced-motion:reduce){.account-bar .nav-submenu{animation:none}.account-bar .nav-submenu a,.account-bar .nav-submenu button{transition:none!important;transform:none!important}}

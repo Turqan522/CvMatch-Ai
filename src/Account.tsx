@@ -99,7 +99,7 @@ export default function Account(){
   {id:'account',label:'Hesab',links:[['Profilim','/profile']]}
  ] as {id:string;label:string;links:[string,string][]}[]).map(group=>
   <div className={'nav-group'+(openMenu===group.id?' is-open':'')} key={group.id}
-   onMouseEnter={()=>setOpenMenu(group.id)} onMouseLeave={()=>setOpenMenu(current=>current===group.id?null:current)}>
+   onMouseEnter={()=>setOpenMenu(group.id)}>
    <button type="button" className="nav-trigger" aria-expanded={openMenu===group.id}
     aria-haspopup="true" onClick={()=>setOpenMenu(current=>current===group.id?null:group.id)}
     onKeyDown={event=>{if(event.key==='ArrowDown'){event.preventDefault();setOpenMenu(group.id);}}}>

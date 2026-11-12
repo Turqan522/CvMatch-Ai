@@ -23,3 +23,19 @@
 :root[data-theme='saas'] .account-bar .nav-dropdown button:hover,:root[data-theme='saas'] .account-bar .nav-dropdown button[aria-current="page"]{color:#167b59;background:#e4f9f0}
 @media(max-width:760px){.account-bar .nav-groups{width:100%;gap:6px}.account-bar .nav-trigger{padding:9px 10px}.account-bar .nav-dropdown{min-width:210px}.account-bar .nav-group:last-of-type .nav-dropdown{left:auto;right:0}}
 @media(prefers-reduced-motion:reduce){.account-bar .nav-trigger,.account-bar .nav-chevron,.account-bar .nav-dropdown,.account-bar .nav-dropdown button,.account-bar .nav-ai{transition:none!important;transform:none!important}}
+
+
+/* Keep the navigation stacking context above the page so visible menu entries are clickable. */
+.account-bar{position:relative;z-index:1000;isolation:isolate;overflow:visible}
+.account-bar nav,.account-bar .nav-groups,.account-bar .nav-group{overflow:visible}
+.account-bar .nav-group{z-index:1}
+.account-bar .nav-group.is-open{z-index:1001}
+.account-bar .nav-group .nav-dropdown{z-index:1002;transform:translateY(0) scale(.98)}
+.account-bar .nav-group.is-open .nav-dropdown{transform:translateY(0) scale(1)}
+.account-bar .nav-dropdown a{display:block;position:relative;z-index:1;width:100%;text-align:left;box-sizing:border-box;text-decoration:none;padding:11px 13px;color:#dbe6fa;border:1px solid transparent;border-radius:10px;font-size:14px;line-height:1.3;cursor:pointer;transition:background .16s ease,color .16s ease,transform .16s ease}
+.account-bar .nav-dropdown a:hover,.account-bar .nav-dropdown a:focus-visible{background:rgba(104,224,178,.14);color:#91f7d0;transform:translateX(4px)}
+.account-bar .nav-dropdown a[aria-current="page"]{background:rgba(104,224,178,.17);color:#91f7d0;border-color:rgba(104,224,178,.26)}
+.account-bar .nav-dropdown a:focus-visible{outline:2px solid #8df4c7;outline-offset:2px}
+:root[data-theme='saas'] .account-bar .nav-dropdown a{color:#263853}
+:root[data-theme='saas'] .account-bar .nav-dropdown a:hover,:root[data-theme='saas'] .account-bar .nav-dropdown a[aria-current="page"]{color:#167b59;background:#e4f9f0}
+@media(prefers-reduced-motion:reduce){.account-bar .nav-dropdown a{transition:none!important;transform:none!important}}

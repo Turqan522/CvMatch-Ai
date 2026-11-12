@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 // Preserve the browser-facing Host so the API can verify same-origin requests.
 const accountProxy = {target:'http://127.0.0.1:3001',changeOrigin:false};
 export default defineConfig(({ command }) => ({
-  base: command === 'build' ? '/CvMatch-Ai/' : '/',
+  base: command === 'build' || process.env.npm_lifecycle_event === 'preview' ? '/CvMatch-Ai/' : '/',
   plugins:[react(),tailwindcss()],
   // Separate concurrent dev servers so one optimizer cannot remove another's PDF module.
   cacheDir:`node_modules/.vite/dev-${process.pid}`,
